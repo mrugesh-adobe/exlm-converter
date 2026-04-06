@@ -6,19 +6,29 @@ const SCHEMA_SCRIPT_ID = 'exl-schema-org-jsonld';
 const EXL_HOST = 'https://experienceleague.adobe.com';
 const SCHEMA_ORG_CONTEXT = 'https://schema.org';
 const WEB_PAGE_TYPE = 'WebPage';
+const SCHEMA_TYPE = 'HowTo';
 const AUDIENCE_TYPE = 'Audience';
+const CONTENT_TYPE_TO_SCHEMA_TYPE = {
+  Documentation: 'HowTo',
+  Certification: 'HowTo',
+  Tutorial: 'TechArticle',
+  Troubleshooting: 'TechArticle',
+  Event: 'Event',
+};
 const SOFTWARE_APPLICATION_TYPE = 'SoftwareApplication';
 const ADOBE_PUBLISHER = {
   '@type': 'Organization',
   name: 'Adobe',
   url: `${EXL_HOST}/`,
 };
+const EPOCH_ISO_DATE = '1970-01-01';
 
 const toIsoDate = (value) => {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toISOString().slice(0, 10);
+  const isoDate = date.toISOString().slice(0, 10);
+  return isoDate === EPOCH_ISO_DATE ? '' : isoDate;
 };
 
 const getCsvValues = (value = '') =>
@@ -37,12 +47,12 @@ const getPageTitle = (document) =>
 
 const resolveCanonicalUrl = (document, path) => {
   const rawUrl = getFirstNonEmpty(
-    `${EXL_HOST}${path}`,
     document.head
       ?.querySelector('link[rel="canonical"]')
       ?.getAttribute('href')
       ?.trim(),
     getMetadata(document, 'og:url'),
+    `${EXL_HOST}${path}`,
     getMetadata(document, 'publish-url'),
   );
 
@@ -59,11 +69,6 @@ const resolveCanonicalUrl = (document, path) => {
 const getLanguageFromPath = (path = '') => {
   const lang = path.split('/')[1];
   return lang || 'en';
-};
-
-const inferSchemaType = (path = '') => {
-  if (path.includes('/docs/')) return 'HowTo';
-  return WEB_PAGE_TYPE;
 };
 
 const addIfPresent = (target, key, value) => {
@@ -147,7 +152,9 @@ const buildSchemaFromMeta = (document, path) => {
     getMetadata(document, 'twitter:description'),
     headline,
   );
-  const type = inferSchemaType(path);
+  const type =
+    CONTENT_TYPE_TO_SCHEMA_TYPE[getMetadata(document, 'coveo-content-type')] ||
+    SCHEMA_TYPE;
   const inLanguage = getLanguageFromPath(path);
 
   if (!canonicalUrl || !headline || !description) {
