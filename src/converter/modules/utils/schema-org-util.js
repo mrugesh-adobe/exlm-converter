@@ -15,6 +15,7 @@ const CONTENT_TYPE_TO_SCHEMA_TYPE = {
   Troubleshooting: 'TechArticle',
   Event: 'Event',
 };
+
 const SOFTWARE_APPLICATION_TYPE = 'SoftwareApplication';
 const ADOBE_PUBLISHER = {
   '@type': 'Organization',
