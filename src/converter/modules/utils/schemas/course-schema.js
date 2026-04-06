@@ -1,4 +1,3 @@
-import { getMetadata } from '../dom-utils.js';
 import {
   SCHEMA_ORG_CONTEXT,
   WEB_PAGE_TYPE,
@@ -9,16 +8,10 @@ import {
   extractCommonMetadata,
 } from '../schema-helpers.js';
 
-const ARTICLE_TYPE_MAP = {
-  Documentation: 'HowTo',
-  Certification: 'HowTo',
-  Tutorial: 'TechArticle',
-  Troubleshooting: 'TechArticle',
-};
+const COURSE_TYPE = 'Course';
+const EDUCATIONAL_CREDENTIAL = 'Course completion credential';
 
-const DEFAULT_TYPE = 'HowTo';
-
-export const buildArticleSchema = (document, path) => {
+export const buildCourseSchema = (document, path) => {
   const {
     canonicalUrl,
     headline,
@@ -27,7 +20,6 @@ export const buildArticleSchema = (document, path) => {
     dateCreated,
     datePublished,
     dateModified,
-    image,
     audienceType,
     about,
     keywords,
@@ -35,13 +27,10 @@ export const buildArticleSchema = (document, path) => {
 
   if (!canonicalUrl || !headline || !description) return null;
 
-  const contentType = getMetadata(document, 'coveo-content-type');
-  const type = ARTICLE_TYPE_MAP[contentType] || DEFAULT_TYPE;
-
   const schema = {};
 
   addIfPresent(schema, '@context', SCHEMA_ORG_CONTEXT);
-  addIfPresent(schema, '@type', type);
+  addIfPresent(schema, '@type', COURSE_TYPE);
   addIfPresent(schema, '@id', `${canonicalUrl}#/schema`);
   addIfPresent(schema, 'url', canonicalUrl);
   addIfPresent(schema, 'headline', headline);
@@ -50,7 +39,6 @@ export const buildArticleSchema = (document, path) => {
   addIfPresent(schema, 'dateCreated', dateCreated);
   addIfPresent(schema, 'datePublished', datePublished);
   addIfPresent(schema, 'dateModified', dateModified);
-  addIfPresent(schema, 'image', image);
   addIfPresent(schema, 'publisher', ADOBE_PUBLISHER);
 
   if (audienceType.length > 0) {
@@ -72,6 +60,7 @@ export const buildArticleSchema = (document, path) => {
   }
 
   addIfPresent(schema, 'keywords', keywords);
+  addIfPresent(schema, 'educationalCredentialAwarded', EDUCATIONAL_CREDENTIAL);
   addIfPresent(schema, 'mainEntityOfPage', {
     '@type': WEB_PAGE_TYPE,
     '@id': canonicalUrl,

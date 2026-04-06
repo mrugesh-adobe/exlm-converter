@@ -1,4 +1,3 @@
-import { getMetadata } from '../dom-utils.js';
 import {
   SCHEMA_ORG_CONTEXT,
   WEB_PAGE_TYPE,
@@ -9,16 +8,9 @@ import {
   extractCommonMetadata,
 } from '../schema-helpers.js';
 
-const ARTICLE_TYPE_MAP = {
-  Documentation: 'HowTo',
-  Certification: 'HowTo',
-  Tutorial: 'TechArticle',
-  Troubleshooting: 'TechArticle',
-};
+const PERSPECTIVE_TYPE = 'BlogPosting';
 
-const DEFAULT_TYPE = 'HowTo';
-
-export const buildArticleSchema = (document, path) => {
+export const buildPerspectiveSchema = (document, path) => {
   const {
     canonicalUrl,
     headline,
@@ -27,7 +19,6 @@ export const buildArticleSchema = (document, path) => {
     dateCreated,
     datePublished,
     dateModified,
-    image,
     audienceType,
     about,
     keywords,
@@ -35,23 +26,29 @@ export const buildArticleSchema = (document, path) => {
 
   if (!canonicalUrl || !headline || !description) return null;
 
-  const contentType = getMetadata(document, 'coveo-content-type');
-  const type = ARTICLE_TYPE_MAP[contentType] || DEFAULT_TYPE;
-
   const schema = {};
 
   addIfPresent(schema, '@context', SCHEMA_ORG_CONTEXT);
-  addIfPresent(schema, '@type', type);
+  addIfPresent(schema, '@type', PERSPECTIVE_TYPE);
   addIfPresent(schema, '@id', `${canonicalUrl}#/schema`);
   addIfPresent(schema, 'url', canonicalUrl);
-  addIfPresent(schema, 'headline', headline);
-  addIfPresent(schema, 'description', description);
+
+  // mainEntityOfPage appears early for BlogPosting and carries an extra headline field
+  addIfPresent(schema, 'mainEntityOfPage', {
+    '@type': WEB_PAGE_TYPE,
+    '@id': canonicalUrl,
+    name: headline,
+    description,
+    headline,
+    url: canonicalUrl,
+  });
+
   addIfPresent(schema, 'inLanguage', inLanguage);
   addIfPresent(schema, 'dateCreated', dateCreated);
   addIfPresent(schema, 'datePublished', datePublished);
   addIfPresent(schema, 'dateModified', dateModified);
-  addIfPresent(schema, 'image', image);
-  addIfPresent(schema, 'publisher', ADOBE_PUBLISHER);
+  addIfPresent(schema, 'headline', headline);
+  addIfPresent(schema, 'description', description);
 
   if (audienceType.length > 0) {
     addIfPresent(schema, 'audience', {
@@ -59,6 +56,8 @@ export const buildArticleSchema = (document, path) => {
       audienceType,
     });
   }
+
+  addIfPresent(schema, 'publisher', ADOBE_PUBLISHER);
 
   if (about.length > 0) {
     addIfPresent(
@@ -72,13 +71,6 @@ export const buildArticleSchema = (document, path) => {
   }
 
   addIfPresent(schema, 'keywords', keywords);
-  addIfPresent(schema, 'mainEntityOfPage', {
-    '@type': WEB_PAGE_TYPE,
-    '@id': canonicalUrl,
-    url: canonicalUrl,
-    name: headline,
-    description,
-  });
 
   return schema;
 };

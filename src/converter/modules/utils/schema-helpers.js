@@ -66,3 +66,68 @@ export const addIfPresent = (target, key, value) => {
   if (Array.isArray(value) && value.length === 0) return;
   target[key] = value;
 };
+
+/**
+ * Extracts the common metadata fields shared by all schema builders.
+ * Centralises metadata reads so individual builders stay focused on structure.
+ *
+ * @param {Document} document
+ * @param {string} path
+ * @returns {Object}
+ */
+export const extractCommonMetadata = (document, path) => {
+  const canonicalUrl = resolveCanonicalUrl(document, path);
+  const headline = getFirstNonEmpty(
+    getMetadata(document, 'title'),
+    getMetadata(document, 'og:title'),
+    getMetadata(document, 'twitter:title'),
+    getPageTitle(document),
+  );
+  const description = getFirstNonEmpty(
+    getMetadata(document, 'description'),
+    getMetadata(document, 'og:description'),
+    getMetadata(document, 'twitter:description'),
+    headline,
+  );
+  const inLanguage = getLanguageFromPath(path);
+  const dateModified = toIsoDate(
+    getFirstNonEmpty(
+      getMetadata(document, 'modified-time'),
+      getMetadata(document, 'last-update'),
+      getMetadata(document, 'published-time'),
+    ),
+  );
+  const datePublished = toIsoDate(
+    getFirstNonEmpty(getMetadata(document, 'published-time'), dateModified),
+  );
+  const dateCreated = toIsoDate(
+    getFirstNonEmpty(getMetadata(document, 'build-date'), datePublished),
+  );
+  const image = getFirstNonEmpty(
+    getMetadata(document, 'og:image:secure_url'),
+    getMetadata(document, 'og:image'),
+    getMetadata(document, 'twitter:image'),
+  );
+  const audienceType = dedupeStrings(
+    getCsvValues(getMetadata(document, 'role')),
+  );
+  const about = dedupeStrings(getCsvValues(getMetadata(document, 'solution')));
+  const keywords = dedupeStrings(
+    getCsvValues(getMetadata(document, 'keywords')).concat(
+      getCsvValues(getMetadata(document, 'feature')),
+    ),
+  );
+  return {
+    canonicalUrl,
+    headline,
+    description,
+    inLanguage,
+    dateCreated,
+    datePublished,
+    dateModified,
+    image,
+    audienceType,
+    about,
+    keywords,
+  };
+};

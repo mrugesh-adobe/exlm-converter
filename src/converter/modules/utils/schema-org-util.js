@@ -3,6 +3,8 @@ import { getMetadata } from './dom-utils.js';
 import { upsertJsonLdScript } from './json-ld-util.js';
 import { buildArticleSchema } from './schemas/article-schema.js';
 import { buildEventSchema } from './schemas/event-schema.js';
+import { buildPerspectiveSchema } from './schemas/perspective-schema.js';
+import { buildCourseSchema } from './schemas/course-schema.js';
 
 const SCHEMA_SCRIPT_ID = 'exl-schema-org-jsonld';
 
@@ -12,6 +14,8 @@ const SCHEMA_BUILDERS = {
   Tutorial: buildArticleSchema,
   Troubleshooting: buildArticleSchema,
   Event: buildEventSchema,
+  Perspective: buildPerspectiveSchema,
+  Course: buildCourseSchema,
 };
 
 const DEFAULT_BUILDER = buildArticleSchema;

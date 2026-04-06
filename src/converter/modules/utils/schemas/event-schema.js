@@ -6,31 +6,33 @@ import {
   SOFTWARE_APPLICATION_TYPE,
   ADOBE_PUBLISHER,
   toIsoDate,
-  getCsvValues,
-  dedupeStrings,
-  getFirstNonEmpty,
-  getPageTitle,
-  resolveCanonicalUrl,
-  getLanguageFromPath,
   addIfPresent,
+  extractCommonMetadata,
 } from '../schema-helpers.js';
 
 const EVENT_TYPE = 'Event';
 
-const buildOrderedEventSchema = ({
-  canonicalUrl,
-  headline,
-  description,
-  inLanguage,
-  dateCreated,
-  datePublished,
-  dateModified,
-  image,
-  audienceType,
-  about,
-  keywords,
-  eventStartDate,
-}) => {
+export const buildEventSchema = (document, path) => {
+  const {
+    canonicalUrl,
+    headline,
+    description,
+    inLanguage,
+    dateCreated,
+    datePublished,
+    dateModified,
+    image,
+    audienceType,
+    about,
+    keywords,
+  } = extractCommonMetadata(document, path);
+
+  if (!canonicalUrl || !headline || !description) return null;
+
+  const eventStartDate =
+    toIsoDate(getMetadata(document, 'event-start-date')) ||
+    toIsoDate(getMetadata(document, 'start-date'));
+
   const schema = {};
 
   addIfPresent(schema, '@context', SCHEMA_ORG_CONTEXT);
@@ -75,69 +77,4 @@ const buildOrderedEventSchema = ({
   });
 
   return schema;
-};
-
-export const buildEventSchema = (document, path) => {
-  const canonicalUrl = resolveCanonicalUrl(document, path);
-  const headline = getFirstNonEmpty(
-    getMetadata(document, 'title'),
-    getMetadata(document, 'og:title'),
-    getMetadata(document, 'twitter:title'),
-    getPageTitle(document),
-  );
-  const description = getFirstNonEmpty(
-    getMetadata(document, 'description'),
-    getMetadata(document, 'og:description'),
-    getMetadata(document, 'twitter:description'),
-    headline,
-  );
-  const inLanguage = getLanguageFromPath(path);
-
-  if (!canonicalUrl || !headline || !description) return null;
-
-  const dateModified = toIsoDate(
-    getFirstNonEmpty(
-      getMetadata(document, 'modified-time'),
-      getMetadata(document, 'last-update'),
-      getMetadata(document, 'published-time'),
-    ),
-  );
-  const datePublished = toIsoDate(
-    getFirstNonEmpty(getMetadata(document, 'published-time'), dateModified),
-  );
-  const dateCreated = toIsoDate(
-    getFirstNonEmpty(getMetadata(document, 'build-date'), datePublished),
-  );
-  const image = getFirstNonEmpty(
-    getMetadata(document, 'og:image:secure_url'),
-    getMetadata(document, 'og:image'),
-    getMetadata(document, 'twitter:image'),
-  );
-  const audienceType = dedupeStrings(
-    getCsvValues(getMetadata(document, 'role')),
-  );
-  const about = dedupeStrings(getCsvValues(getMetadata(document, 'solution')));
-  const keywords = dedupeStrings(
-    getCsvValues(getMetadata(document, 'keywords')).concat(
-      getCsvValues(getMetadata(document, 'feature')),
-    ),
-  );
-  const eventStartDate =
-    toIsoDate(getMetadata(document, 'event-start-date')) ||
-    toIsoDate(getMetadata(document, 'start-date'));
-
-  return buildOrderedEventSchema({
-    canonicalUrl,
-    headline,
-    description,
-    inLanguage,
-    dateCreated,
-    datePublished,
-    dateModified,
-    image,
-    audienceType,
-    about,
-    keywords,
-    eventStartDate,
-  });
 };
