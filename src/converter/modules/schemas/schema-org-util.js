@@ -20,7 +20,8 @@ const SCHEMA_BUILDERS = {
 
 const buildSchemaFromMeta = (document, path) => {
   const contentType = getMetadata(document, 'coveo-content-type');
-  const builder = SCHEMA_BUILDERS[contentType] || buildArticleSchema;
+  const builder = SCHEMA_BUILDERS[contentType];
+  if (!builder) return null;
   return builder(document, path, contentType);
 };
 
