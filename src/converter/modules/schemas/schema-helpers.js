@@ -1,4 +1,4 @@
-import { getMetadata } from './dom-utils.js';
+import { getMetadata } from '../utils/dom-utils.js';
 
 export const EXL_HOST = 'https://experienceleague.adobe.com';
 export const SCHEMA_ORG_CONTEXT = 'https://schema.org';
@@ -10,7 +10,7 @@ const EPOCH_ISO_DATE = '1970-01-01';
 export const ADOBE_PUBLISHER = {
   '@type': 'Organization',
   name: 'Adobe',
-  url: `${EXL_HOST}/`,
+  url: EXL_HOST,
 };
 
 export const toIsoDate = (value) => {
@@ -100,9 +100,7 @@ export const extractCommonMetadata = (document, path) => {
   const datePublished = toIsoDate(
     getFirstNonEmpty(getMetadata(document, 'published-time'), dateModified),
   );
-  const dateCreated = toIsoDate(
-    getFirstNonEmpty(getMetadata(document, 'build-date'), datePublished),
-  );
+  const dateCreated = toIsoDate(getFirstNonEmpty(datePublished));
   const image = getFirstNonEmpty(
     getMetadata(document, 'og:image:secure_url'),
     getMetadata(document, 'og:image'),
@@ -112,11 +110,12 @@ export const extractCommonMetadata = (document, path) => {
     getCsvValues(getMetadata(document, 'role')),
   );
   const about = dedupeStrings(getCsvValues(getMetadata(document, 'solution')));
-  const keywords = dedupeStrings(
-    getCsvValues(getMetadata(document, 'keywords')).concat(
-      getCsvValues(getMetadata(document, 'feature')),
-    ),
-  );
+  const keywords = dedupeStrings([
+    ...getCsvValues(getMetadata(document, 'solution')),
+    ...getCsvValues(getMetadata(document, 'feature')),
+    ...getCsvValues(getMetadata(document, 'sub-feature')),
+    ...getCsvValues(getMetadata(document, 'topic')),
+  ]).slice(0, 10);
   return {
     canonicalUrl,
     headline,

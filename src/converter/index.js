@@ -33,7 +33,7 @@ import renderIoFile from './renderers/render-io-file.js';
 import renderSlide from './renderers/render-slide.js';
 import renderToc from './renderers/render-toc.js';
 import renderOnDemandEvent from './renderers/render-on-demand-events.js';
-import { injectSchemaOrg } from './modules/utils/schema-org-util.js';
+import { injectSchemaOrg } from './modules/schemas/schema-org-util.js';
 
 // need this to work with both esm and commonjs
 let dir;

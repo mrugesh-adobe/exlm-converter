@@ -1,4 +1,4 @@
-import { htmlToElement } from './dom-utils.js';
+import { htmlToElement } from '../utils/dom-utils.js';
 
 /**
  * Upserts a JSON-LD script in document head.

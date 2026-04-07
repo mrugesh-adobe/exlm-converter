@@ -1,4 +1,4 @@
-import { getMetadata } from '../dom-utils.js';
+import { getMetadata } from '../../utils/dom-utils.js';
 import {
   SCHEMA_ORG_CONTEXT,
   WEB_PAGE_TYPE,

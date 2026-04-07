@@ -1,10 +1,10 @@
 import jsdom from 'jsdom';
-import { getMetadata } from './dom-utils.js';
+import { getMetadata } from '../utils/dom-utils.js';
 import { upsertJsonLdScript } from './json-ld-util.js';
-import { buildArticleSchema } from './schemas/article-schema.js';
-import { buildEventSchema } from './schemas/event-schema.js';
-import { buildPerspectiveSchema } from './schemas/perspective-schema.js';
-import { buildCourseSchema } from './schemas/course-schema.js';
+import { buildArticleSchema } from './builders/article-schema.js';
+import { buildEventSchema } from './builders/event-schema.js';
+import { buildPerspectiveSchema } from './builders/perspective-schema.js';
+import { buildCourseSchema } from './builders/course-schema.js';
 
 const SCHEMA_SCRIPT_ID = 'exl-schema-org-jsonld';
 
