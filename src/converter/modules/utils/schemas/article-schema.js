@@ -16,7 +16,12 @@ const ARTICLE_TYPE_MAP = {
   Troubleshooting: 'TechArticle',
 };
 
+const ARTICLE_ID_FRAGMENT_MAP = {
+  Tutorial: 'techarticle',
+};
+
 const DEFAULT_TYPE = 'HowTo';
+const DEFAULT_ID_FRAGMENT = '/schema';
 
 export const buildArticleSchema = (document, path) => {
   const {
@@ -37,12 +42,14 @@ export const buildArticleSchema = (document, path) => {
 
   const contentType = getMetadata(document, 'coveo-content-type');
   const type = ARTICLE_TYPE_MAP[contentType] || DEFAULT_TYPE;
+  const idFragment =
+    ARTICLE_ID_FRAGMENT_MAP[contentType] || DEFAULT_ID_FRAGMENT;
 
   const schema = {};
 
   addIfPresent(schema, '@context', SCHEMA_ORG_CONTEXT);
   addIfPresent(schema, '@type', type);
-  addIfPresent(schema, '@id', `${canonicalUrl}#/schema`);
+  addIfPresent(schema, '@id', `${canonicalUrl}#${idFragment}`);
   addIfPresent(schema, 'url', canonicalUrl);
   addIfPresent(schema, 'headline', headline);
   addIfPresent(schema, 'description', description);
