@@ -18,12 +18,10 @@ const SCHEMA_BUILDERS = {
   Course: buildCourseSchema,
 };
 
-const DEFAULT_BUILDER = buildArticleSchema;
-
 const buildSchemaFromMeta = (document, path) => {
   const contentType = getMetadata(document, 'coveo-content-type');
-  const builder = SCHEMA_BUILDERS[contentType] || DEFAULT_BUILDER;
-  return builder(document, path);
+  const builder = SCHEMA_BUILDERS[contentType] || buildArticleSchema;
+  return builder(document, path, contentType);
 };
 
 export const injectSchemaOrg = ({ path, body, headers = {} }) => {

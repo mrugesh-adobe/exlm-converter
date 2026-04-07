@@ -1,4 +1,3 @@
-import { getMetadata } from '../dom-utils.js';
 import {
   SCHEMA_ORG_CONTEXT,
   WEB_PAGE_TYPE,
@@ -23,7 +22,7 @@ const ARTICLE_ID_FRAGMENT_MAP = {
 const DEFAULT_TYPE = 'HowTo';
 const DEFAULT_ID_FRAGMENT = '/schema';
 
-export const buildArticleSchema = (document, path) => {
+export const buildArticleSchema = (document, path, contentType = '') => {
   const {
     canonicalUrl,
     headline,
@@ -40,7 +39,6 @@ export const buildArticleSchema = (document, path) => {
 
   if (!canonicalUrl || !headline || !description) return null;
 
-  const contentType = getMetadata(document, 'coveo-content-type');
   const type = ARTICLE_TYPE_MAP[contentType] || DEFAULT_TYPE;
   const idFragment =
     ARTICLE_ID_FRAGMENT_MAP[contentType] || DEFAULT_ID_FRAGMENT;
